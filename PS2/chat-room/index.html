@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f4f8;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        #chat-container {
+            width: 100%;
+            max-width: 600px;
+            background: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: none; /* Hide initially */
+        }
+        h1 {
+            background-color: #007bff;
+            color: white;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        #messages {
+            height: 400px;
+            overflow-y: auto;
+            padding: 20px;
+            background-color: #e9ecef;
+        }
+        #messages li {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            background-color: #ffffff;
+            transition: background-color 0.3s;
+        }
+        #messages li:nth-child(odd) {
+            background-color: #d1ecf1;
+        }
+        #messages li:hover {
+            background-color: #cce5ff;
+        }
+        #input-container {
+            display: flex;
+            padding: 10px;
+            background-color: #f8f9fa;
+        }
+        #message {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            margin-right: 10px;
+        }
+        #send {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #28a745;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #send:hover {
+            background-color: #218838;
+        }
+        #name-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #name-input {
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+            width: 80%;
+        }
+        #name-submit {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            background-color: #007bff;
+            color: white;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        #name-submit:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat-container">
+        <h1>Chat Room</h1>
+        <ul id="messages"></ul>
+        <div id="input-container">
+            <input id="message" autocomplete="off" placeholder="Type your message here..." />
+            <button id="send">Send</button>
+        </div>
+    </div>
+
+    <div id="name-container">
+        <h2>Enter your name</h2>
+        <input id="name-input" placeholder="Your name" />
+        <button id="name-submit">Join Chat</button>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        let userName = '';
+
+        document.getElementById('name-submit').onclick = function() {
+            userName = document.getElementById('name-input').value.trim();
+            if (userName) {
+                document.getElementById('name-container').style.display = 'none';
+                document.getElementById('chat-container').style.display = 'block';
+            }
+        };
+
+        document.getElementById('send').onclick = function() {
+            const msg = document.getElementById('message').value;
+            if (msg.trim()) {
+                socket.emit('chat message', `${userName}: ${msg}`);
+                document.getElementById('message').value = '';
+            }
+        };
+
+        socket.on('chat message', function(msg) {
+            const item = document.createElement('li');
+            item.textContent = msg;
+            document.getElementById('messages').appendChild(item);
+            document.getElementById('messages').scrollTop = document.getElementById('messages').scrollHeight;
+        });
+    </script>
+</body>
+</html>
